@@ -27,8 +27,9 @@ with m4:
 chart_place = st.empty()
 data_history = []
 
-# Live Loop Simulation
-for i in range(20):
+i = 0
+# Changed to True so it never auto-closes!
+while True:
     soil_moisture = random.randint(15, 85)
     soil_temp = round(random.uniform(22.0, 38.0), 1)
     battery_level = random.randint(40, 100)
@@ -43,7 +44,9 @@ for i in range(20):
     
     # Store history for graphing
     data_history.append({"Time Tracking": i, "Moisture %": soil_moisture, "Battery %": battery_level})
-    chart_place.line_chart(pd.DataFrame(data_history).set_index("Time Tracking"))
+    # Keep only the last 30 entries so the chart doesn't get squished
+    chart_place.line_chart(pd.DataFrame(data_history[-30:]).set_index("Time Tracking"))
     
+    i += 1
     time.sleep(1)
 
