@@ -1,63 +1,49 @@
+import streamlit as st
+import random
 import time
 import pandas as pd
-import streamlit as st
 
-st.set_page_config(page_title="AgroSphere e035800e", page_icon="🌾", layout="wide")
+st.set_page_config(page_title="AgroSphere Dashboard", page_icon="🌾", layout="wide")
 
-st.title("🌾 AgroSphere Precision Farming Dashboard")
-st.markdown("### Powered by Team AgriVarshini | System ID: **e035800e**")
-st.write("---")
+st.title("🌾 AgroSphere Sustainable IoT Dashboard")
+st.caption("Project ID: e035800e | EcoLogic 1.0 Hackathon Prototype")
 
-# Navigation Menu
-menu = st.sidebar.radio(
-    "Go To Dashboard Insights",
-    ["Live Tracking", "Fertilizer Optimization", "Solar Power Analytics"],
-)
+# Sidebar Controls
+st.sidebar.header("⚙️ Simulation Settings")
+moisture_threshold = st.sidebar.slider("Smart Irrigation Trigger Threshold (%)", 15, 50, 30)
 
-if menu == "Live Tracking":
-    st.subheader("💧 Real-Time Soil & Irrigation Tracker")
+# Live Metrics Placeholders
+m1, m2, m3, m4 = st.columns(4)
+with m1:
+    moisture_place = st.empty()
+with m2:
+    temp_place = st.empty()
+with m3:
+    battery_place = st.empty()
+with m4:
+    pump_place = st.empty()
 
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        moisture = st.slider("Live Soil Moisture (%)", 0, 100, 28)
-    with col2:
-        temp = st.number_input("Soil Temperature (°C)", value=29.2)
-    with col3:
-        ph_level = st.slider("Soil pH Level", 0.0, 14.0, 6.5)
+# Graph Placeholder
+chart_place = st.empty()
+data_history = []
 
-    st.write("---")
-    if moisture < 30:
-        st.error(
-            f"🚨 CRITICAL ALERT: Moisture level is low ({moisture}%). Smart Irrigation Pump status: [RUNNING]"
-        )
-    else:
-        st.success(
-            f"✅ SYSTEM NORMAL: Soil status stable ({moisture}%). Smart Irrigation Pump status: [STANDBY]"
-        )
+# Live Loop Simulation
+for i in range(20):
+    soil_moisture = random.randint(15, 85)
+    soil_temp = round(random.uniform(22.0, 38.0), 1)
+    battery_level = random.randint(40, 100)
+    
+    irrigation_status = "🔴 ON (Watering)" if soil_moisture < moisture_threshold else "🟢 OFF (Sufficient)"
+    
+    # Update visual metrics
+    moisture_place.metric("💧 Soil Moisture", f"{soil_moisture}%")
+    temp_place.metric("🌡️ Soil Temp", f"{soil_temp}°C")
+    battery_place.metric("🔋 Solar Battery", f"{battery_level}%")
+    pump_place.metric("⚙️ Pump Status", irrigation_status)
+    
+    # Store history for graphing
+    data_history.append({"Time Tracking": i, "Moisture %": soil_moisture, "Battery %": battery_level})
+    chart_place.line_chart(pd.DataFrame(data_history).set_index("Time Tracking"))
+    
+    time.sleep(1)
 
-elif menu == "Fertilizer Optimization":
-    st.subheader("🧪 Precision NPK Compound Advisor")
-    st.markdown("Target values calculated dynamically for EcoLogic Smart Agriculture framework.")
-
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Nitrogen (N)", "42 mg/kg", "-8 mg/kg (Deficit)")
-    col2.metric("Phosphorus (P)", "24 mg/kg", "Normal")
-    col3.metric("Potassium (K)", "55 mg/kg", "Optimal")
-
-    st.info(
-        "💡 Smart Advice: Apply 4.5kg of Nitrogen-enriched organic manure per acre to stabilize yield metrics."
-    )
-
-elif menu == "Solar Power Analytics":
-    st.subheader("☀️ Farm Clean Energy Node Monitoring")
-
-    col1, col2 = st.columns(2)
-    with col1:
-        st.metric(label="Solar Array Grid Input", value="13.4 V", delta="0.8 V")
-    with col2:
-        st.write("🔋 Battery System Charge State:")
-        st.progress(89)
-
-    st.success(
-        "⚡ Eco-Energy Status: Autonomous Node operational. 0% grid dependencies recorded."
-    )
